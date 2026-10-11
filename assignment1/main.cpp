@@ -25,9 +25,9 @@ const std::string COURSES_NOT_OFFERED_PATH = "student_output/courses_not_offered
  * Hint: Remember what types C++ streams work with?!
  */
 struct Course {
-  /* STUDENT TODO */ title;
-  /* STUDENT TODO */ number_of_units;
-  /* STUDENT TODO */ quarter;
+  std::string title;
+  int number_of_units;
+  std::string quarter;
 };
 
 /**
@@ -58,8 +58,18 @@ struct Course {
  * @param filename The name of the file to parse.
  * @param courses  A vector of courses to populate.
  */
-void parse_csv(std::string filename, std::vector<Course> courses) {
-  /* (STUDENT TODO) Your code goes here... */
+void parse_csv(std::string filename, std::vector<Course>& courses /* but from my point of view, I think a pointer shows more intent */) {
+  std::ifstream file(filename);
+  std::string record;
+  std::getline(file, record); // discard the first line/row
+  while (std::getline(file, record)) {
+    auto strs = split(record, ',');
+    Course course;
+    course.title = strs[0];
+    course.number_of_units = std::stoi(strs[1]);
+    course.quarter = strs[2];
+    courses.push_back(course);
+  }
 }
 
 /**
@@ -80,8 +90,23 @@ void parse_csv(std::string filename, std::vector<Course> courses) {
  * @param all_courses A vector of all courses gotten by calling `parse_csv`.
  *                    This vector will be modified by removing all offered courses.
  */
-void write_courses_offered(std::vector<Course> all_courses) {
-  /* (STUDENT TODO) Your code goes here... */
+void write_courses_offered(std::vector<Course>& all_courses) {
+  std::string filename = "student_output/courses_offered.csv";
+  std::ofstream file(filename);
+  std::vector<Course> to_removes; // actually, it's better to store pointers, so you don't need to overload a == operator
+
+  file << "Title,Number of Units,Quarter\n";
+  for (const auto& course : all_courses) {
+    if (course.quarter != "null") {
+      to_removes.push_back(course);
+      // Todo need to overload << operator for struct Course
+      file << course.title << "," << course.number_of_units << "," << course.quarter << "\n";
+    }
+  }
+
+  for (const auto& to_remove : to_removes) {
+    delete_elem_from_vector(all_courses, to_remove);
+  }
 }
 
 /**
@@ -98,7 +123,14 @@ void write_courses_offered(std::vector<Course> all_courses) {
  * @param unlisted_courses A vector of courses that are not offered.
  */
 void write_courses_not_offered(std::vector<Course> unlisted_courses) {
-  /* (STUDENT TODO) Your code goes here... */
+  std::string filename = "student_output/courses_not_offered.csv";
+  std::ofstream file(filename);
+
+  file << "Title,Number of Units,Quarter\n";
+  for (const auto& course : unlisted_courses) {
+    // Todo need to overload << operator for struct Course
+    file << course.title << "," << course.number_of_units << "," << course.quarter << "\n";
+  }
 }
 
 int main() {
