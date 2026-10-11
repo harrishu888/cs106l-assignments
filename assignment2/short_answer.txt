@@ -5,7 +5,25 @@ Marriage Pact
 -------------
 
 Q1. It is your choice to use either an ordered or unordered set. In a few sentences, what are some of the tradeoffs between the two? Additionally, please give an example (that has not been shown in lecture) of a valid hash function that could be used to hash student names for an unordered set.
-A1. TODO
+A1. ordered are implemented in Red-Black Tree to maintain orders and sarcrfice faster access; unordered are implemented using hashing without order but faster accesss.
+def hash(name, factor=2356):
+    value = 0
+    for letter in name:
+        value = value * factor + letter's ascii value
+    return value
+
+大约 8/10 分，这次两个部分都回答到了。
+- 权衡分析：3/5。方向正确，但“unordered 更快”不够严谨：查找、插入、删除平均为 \(O(1)\)，最坏为 \(O(n)\)；ordered 为 \(O(\log n)\)，支持按序遍历。另外，红黑树是 std::set 的常见实现，并非标准强制。
+- 哈希函数：5/5。作为伪代码，这是合法的多项式滚动哈希，考虑了字符及其顺序。2356 可以使用，因子不必是质数才能合法；但合法不代表碰撞分布好。是否满足“课堂没讲过”，需要你确认。
+如果要求可运行的 Python，letter's ascii value 应写成 ord(letter)；它返回 Unicode 码点，对 ASCII 字符就是 ASCII 值。
+英文部分建议改为：
+An ordered set is typically implemented using a balanced binary search tree, such as a red-black tree. It keeps elements sorted and supports lookup, insertion, and deletion in O(log n) time. An unordered set uses hashing and provides O(1) average-time operations, but O(n) worst-case operations, without maintaining sorted order.
 
 Q2. Note that we are saving pointers to names in the queue, not names themselves. Why might this be desired in this problem? What happens if the original set where the names are stored goes out of scope and the pointers are referenced?
-A2. TODO
+A2. name consitency. cause UB. 
+
+大约 5/10 分。 你答对了 UB，但第一部分不够明确，第二部分缺少原因。
+- “name consistency”：可以理解为指向同一个原始对象，但主要好处是避免复制字符串，减少复制开销及重复存储。
+- “cause UB”：正确。原集合离开作用域后，其中的字符串被销毁，队列里的指针成为悬空指针（dangling pointers）；通过它们访问字符串会导致未定义行为。仅保存这些指针本身不会触发 UB。
+可以改成：
+Storing pointers avoids copying the strings, reducing copying overhead and duplicate storage. If the original set goes out of scope, its strings are destroyed and the pointers in the queue become dangling. Dereferencing those pointers results in undefined behavior.
